@@ -68,13 +68,14 @@ def autolabel(rects):
     """Attach a text label above each bar in *rects*, displaying its height.""" '"%.2f" %height '
     for rect in rects:
         height = rect.get_height()
+        print(height)
         ax.annotate('{}'.format("%.2f" %height),
                     xy=(rect.get_x() + rect.get_width() / 2, height),
                     xytext=(0, 3),  # 3 points vertical offset
                     textcoords="offset points",
                     ha='center', va='bottom')
 
-# Top Crops
+# Top 5 Crops
 top_crop = data1.groupby(['Crop' ]).sum().sort_values('Production', ascending=False)
 top_crop.reset_index(inplace=True)
 top5_crop=top_crop.head(5)
@@ -92,7 +93,7 @@ rects = ax.bar(x - width+1.5/2, crop_means, width, label='Production')
 
 
 # Add some text for labels, title and custom x-axis tick labels, etc.
-ax.set_ylabel('In Quintal (10K per Units)')
+ax.set_ylabel('In Tonnes (1000K per Units)')
 ax.set_title('Top 5 Crops in Andhra Pradesh')
 ax.set_xticks(x)
 ax.set_xticklabels(crop_labels, rotation=45)
@@ -113,6 +114,7 @@ only_coconut.head()
 data1_coconut= data1[only_coconut]
 data1_coconut = data1_coconut.sort_values('Production', ascending=False)
 data1_coconut_top5 = data1_coconut.head(5)
+data1_coconut_top5['Production'] = np.log10(data1_coconut_top5['Production'])
 
 crop_labels1 = data1_coconut_top5['District_Name'].tolist()
 crop_means1 = data1_coconut_top5['Production'].tolist()
@@ -122,9 +124,9 @@ fig1, ax1= plt.subplots(figsize=(10,8))
 rects1 = ax1.bar(x1 - width+1.5/2, crop_means1, width, label='Production')
 
 # Add some text for labels, title and custom x-axis tick labels, etc.
-ax1.set_ylabel('In Quintal (10K per Units)')
+ax1.set_ylabel('In Tonnes (1000K per Units)')
 ax1.set_title('Top 5 Coconut Production Districts in Andhra Pradesh')
-ax1.set_xticks(x)
+ax1.set_xticks(x1)
 ax1.set_xticklabels(crop_labels1, rotation=45)
 ax1.legend()
 
@@ -140,6 +142,7 @@ only_sugarcane.head()
 data1_sugarcane= data1[only_sugarcane]
 data1_sugarcane = data1_sugarcane.sort_values('Production', ascending=False)
 data1_sugarcane_top5 = data1_sugarcane.head(5)
+data1_sugarcane_top5['Production'] = np.log10(data1_sugarcane_top5['Production'])
 
 crop_labels2 = data1_sugarcane_top5['District_Name'].tolist()
 crop_means2 = data1_sugarcane_top5['Production'].tolist()
@@ -149,7 +152,7 @@ fig2, ax2= plt.subplots(figsize=(10,8))
 rects2 = ax2.bar(x2 - width+1.5/2, crop_means2, width, label='Production')
 
 # Add some text for labels, title and custom x-axis tick labels, etc.
-ax2.set_ylabel('In Quintal (10K per Units)')
+ax2.set_ylabel('In Tonnes (1000K per Units)')
 ax2.set_title('Top 5 Sugarcane Production Districts in Andhra Pradesh')
 ax2.set_xticks(x2)
 ax2.set_xticklabels(crop_labels2, rotation=45)
@@ -169,6 +172,7 @@ only_rice.head()
 data1_rice= data1[only_rice]
 data1_rice = data1_rice.sort_values('Production', ascending=False)
 data1_rice_top5 = data1_rice.head()
+data1_rice_top5['Production'] = np.log10(data1_rice_top5['Production'])
 
 crop_labels3 = data1_rice_top5['District_Name'].tolist()
 crop_means3 = data1_rice_top5['Production'].tolist()
@@ -178,7 +182,7 @@ fig3, ax3= plt.subplots(figsize=(10,8))
 rects3= ax3.bar(x3 - width+1.5/2, crop_means3, width, label='Production')
 
 # Add some text for labels, title and custom x-axis tick labels, etc.
-ax3.set_ylabel('In Quintal (10K per Units)')
+ax3.set_ylabel('In Tonnes (1000K per Units)')
 ax3.set_title('Top 5 Rice Production Districts in Andhra Pradesh')
 ax3.set_xticks(x3)
 ax3.set_xticklabels(crop_labels3, rotation=45)
@@ -196,6 +200,7 @@ only_maize.head()
 data1_maize= data1[only_maize]
 data1_maize = data1_maize.sort_values('Production', ascending=False)
 data1_maize_top5 = data1_maize.head()
+data1_maize_top5['Production'] = np.log10(data1_maize_top5['Production'])
 
 crop_labels4 = data1_maize_top5['District_Name'].tolist()
 crop_means4 = data1_maize_top5['Production'].tolist()
@@ -205,7 +210,7 @@ fig4, ax4 =plt.subplots(figsize=(10,8))
 rects4= ax4.bar(x4 - width+1.5/2, crop_means4, width, label='Production')
 
 # Add some text for labels, title and custom x-axis tick labels, etc.
-ax4.set_ylabel('In Quintal (10K per Units)')
+ax4.set_ylabel('In Tonnes (1000K per Units)')
 ax4.set_title('Top 5 Maize Production Districts in Andhra Pradesh')
 ax4.set_xticks(x4)
 ax4.set_xticklabels(crop_labels4, rotation=45)
@@ -223,12 +228,26 @@ only_groundnut = data1['Crop']=='Groundnut'
 only_groundnut.head()
 data1_groundnut= data1[only_groundnut]
 data1_groundnut = data1_groundnut.sort_values('Production', ascending=False)
-data1_groundnut.head()
+data1_groundnut_top5 = data1_groundnut.head()
+data1_groundnut_top5['Production'] = np.log10(data1_groundnut_top5['Production'])
 
-fig = plt.Figure(figsize=(12,12))
-data1_groundnut.head(5).plot(kind='bar',x='District_Name',y='Production', color='blue',stacked=True, title='Top 5 Districts in Groundnut Production in AP', alpha=0.75, rot=45)
+crop_labels5 = data1_groundnut_top5['District_Name'].tolist()
+crop_means5 = data1_groundnut_top5['Production'].tolist()
 
-plt.savefig('ap_top5_Groundnut_production.png')
+x5 = np.arange(len(crop_labels4))  # the label locations
+fig5, ax5 =plt.subplots(figsize=(10,8))
+rects5= ax5.bar(x5 - width+1.5/2, crop_means5, width, label='Production')
+
+# Add some text for labels, title and custom x-axis tick labels, etc.
+ax5.set_ylabel('In Tonnes (1000K per Units)')
+ax5.set_title('Top 5 Groundnut Production Districts in Andhra Pradesh')
+ax5.set_xticks(x4)
+ax5.set_xticklabels(crop_labels5, rotation=45)
+ax5.legend()
+
+autolabel(rects5)
+fig5.tight_layout()
+fig5.savefig('D:\\GitHub\\Projects\\Coursera_Capstone\\ap_top5_groundnut_production.png')
 plt.show()
 
 
@@ -257,7 +276,7 @@ data_onehot.columns
 
 # Correct the District name for VISHAKAPATNAM for Andhra Pradesh state
 data_onehot['District_Name'] = data['District_Name'].replace('VISAKHAPATANAM',"VISAKHAPATNAM")
-data_onehot['District_Name'].replace({'RANGAREDDI':'RANGAREDDY'}, inplace=True)
+#data_onehot['District_Name'].replace({'RANGAREDDI':'RANGAREDDY'}, inplace=True)
 data_onehot.shape
 
 
@@ -300,6 +319,9 @@ for district in districts:
 district_lats
 district_lngs
 district_names
+
+for dist, lat, lon in zip(district_names, district_lats, district_lngs):
+    print ('{} - {}, {}'.format(dist, lat, lon))
 
 
 # In[199]:
@@ -433,7 +455,7 @@ district_merged.columns
 
 
 # create map
-map_clusters = folium.Map(location=[latitude, longitude], zoom_start=11)
+map_clusters = folium.Map(location=[latitude, longitude], zoom_start=10)
 
 # set color scheme for the clusters
 x = np.arange(kclusters)
@@ -459,6 +481,8 @@ map_clusters
 map_path = "d:\\Temp\\"+state_name+"-map.html"
 print(map_path)
 map_clusters.save(map_path, close_file=True)
+
+
 
 import selenium.webdriver
 driver = selenium.webdriver.PhantomJS('D:\\Software\\phantomjs-2.1.1-windows\\phantomjs-2.1.1-windows\\bin\\phantomjs.exe')
@@ -503,6 +527,30 @@ district_merged.loc[district_merged['Cluster Labels'] == 3, district_merged.colu
 
 # In[ ]:
 
+usmap = folium.Map(
+    location=[40,-95],
+    tiles='cartodbpositron',
+    zoom_start=5,
+    control_scale=True
+)
 
+folium.GeoJson(
+    states[['STATE_NAME', 'geometry']].to_json(),
+    name='States',
+    show=True,
+    style_function=lambda x: {
+        'fillColor': 'lightblue',
+        'color': 'black',
+        'weight': 1,
+        'fillOpacity':0.7
+    },
+    highlight_function=lambda x: {
+        'fillOpacity':1
+    },
+    tooltip=folium.features.GeoJsonTooltip(
+        fields=['STATE_NAME'],
+        aliases=['State name:'],
+    ),
+).add_to(usmap)
 
 
