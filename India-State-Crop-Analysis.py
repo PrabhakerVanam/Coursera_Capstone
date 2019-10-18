@@ -51,7 +51,7 @@ data.head()
 
 # Select the State for Analysis
 state_name='Andhra Pradesh'
-data=data[data['State_Name']==state_name]
+data=data[data['State_Name']==state_name ]
 data.shape
 
 # definitions for the axes
@@ -59,10 +59,31 @@ left, width = 0.1, 0.65
 bottom, height = 0.1, 0.65
 spacing = 0.005
 
-data1 = data
-data1 = data1.groupby(['District_Name','Crop' ]).sum()
-data1.sort_values('Production', ascending=False)
-data1.reset_index(inplace=True)
+# Kaarif & Rabi
+season1 = 'Kharif     '
+season2 = 'Rabi       '
+
+# Kharif
+data_kharif=data[data['Season']==season1]
+data_kharif.shape
+data_kharif = data_kharif.groupby(['District_Name','Crop' ]).sum()
+data_kharif.sort_values('Production', ascending=False)
+data_kharif.reset_index(inplace=True)
+
+#Rabi
+data_rabi=data[data['Season']==season2]
+data_rabi.shape
+data_rabi = data_rabi.groupby(['District_Name','Crop' ]).sum()
+data_rabi.sort_values('Production', ascending=False)
+data_rabi.reset_index(inplace=True)
+
+# Whole year
+data_wy = data[data['Season']== 'Whole Year ']
+data_wy = data_wy.groupby(['District_Name','Crop' ]).sum()
+data_wy.sort_values('Production', ascending=False)
+data_wy.reset_index(inplace=True)
+
+
 
 def autolabel(rects):
     """Attach a text label above each bar in *rects*, displaying its height.""" '"%.2f" %height '
@@ -75,8 +96,17 @@ def autolabel(rects):
                     textcoords="offset points",
                     ha='center', va='bottom')
 
-# Top 5 Crops
-top_crop = data1.groupby(['Crop' ]).sum().sort_values('Production', ascending=False)
+def normalize(df):
+    """Method to normalize dataframe """
+    result = df.copy()
+    for feature_name in df.columns:
+        max_value = df[feature_name].max()
+        min_value = df[feature_name].min()
+        result[feature_name] = (df[feature_name] - min_value) / (max_value - min_value)
+    return result
+
+# Top 5 Crops (Whole Year)
+top_crop = data_wy.groupby(['Crop' ]).sum().sort_values('Production', ascending=False)
 top_crop.reset_index(inplace=True)
 top5_crop=top_crop.head(5)
 top5_crop['Production'] = np.log10(top5_crop['Production'])
@@ -94,7 +124,8 @@ rects = ax.bar(x - width+1.5/2, crop_means, width, label='Production')
 
 # Add some text for labels, title and custom x-axis tick labels, etc.
 ax.set_ylabel('In Tonnes (1000K per Units)')
-ax.set_title('Top 5 Crops in Andhra Pradesh')
+ax.set_xlabel('Crop')
+ax.set_title('Top 5 Crops in Andhra Pradesh (Whole Year)')
 ax.set_xticks(x)
 ax.set_xticklabels(crop_labels, rotation=45)
 ax.set_yticklabels('')
@@ -102,152 +133,231 @@ ax.legend()
 
 autolabel(rects)
 fig.tight_layout()
-fig.savefig('D:\\GitHub\\Projects\\Coursera_Capstone\\ap_top5_crop.png')
+fig.savefig('D:\\GitHub\\Projects\\Coursera_Capstone\\ap_top5_crop_wy.png')
+plt.show()
+
+# Top 5 Crops (Season = Karif)
+top_crop = data_kharif.groupby(['Crop' ]).sum().sort_values('Production', ascending=False)
+top_crop.reset_index(inplace=True)
+top5_crop=top_crop.head(5)
+top5_crop['Production'] = np.log10(top5_crop['Production'])
+
+crop_labels = top5_crop['Crop'].tolist()
+crop_means = top5_crop['Production'].tolist()
+
+
+x = np.arange(len(crop_labels))  # the label locations
+width = 0.75  # the width of the bars
+
+fig, ax = plt.subplots(figsize=(10,8))
+rects = ax.bar(x - width+1.5/2, crop_means, width, label='Production')
+
+
+# Add some text for labels, title and custom x-axis tick labels, etc.
+ax.set_ylabel('In Tonnes (1000K per Units)')
+ax.set_xlabel('Crop')
+ax.set_title('Top 5 Crops in Andhra Pradesh (Kharif)')
+ax.set_xticks(x)
+ax.set_xticklabels(crop_labels, rotation=45)
+ax.set_yticklabels('')
+ax.legend()
+
+autolabel(rects)
+fig.tight_layout()
+fig.savefig('D:\\GitHub\\Projects\\Coursera_Capstone\\ap_top5_crop-kharif.png')
+plt.show()
+
+# Top 5 Crops (Season = Rabi)
+top_crop = data_rabi.groupby(['Crop' ]).sum().sort_values('Production', ascending=False)
+top_crop.reset_index(inplace=True)
+top5_crop=top_crop.head(5)
+top5_crop['Production'] = np.log10(top5_crop['Production'])
+
+crop_labels = top5_crop['Crop'].tolist()
+crop_means = top5_crop['Production'].tolist()
+
+
+x = np.arange(len(crop_labels))  # the label locations
+width = 0.75  # the width of the bars
+
+fig, ax = plt.subplots(figsize=(10,8))
+rects = ax.bar(x - width+1.5/2, crop_means, width, label='Production')
+
+
+# Add some text for labels, title and custom x-axis tick labels, etc.
+ax.set_ylabel('In Tonnes (1000K per Units)')
+ax.set_xlabel('Crop')
+ax.set_title('Top 5 Crops in Andhra Pradesh (Rabi)')
+ax.set_xticks(x)
+ax.set_xticklabels(crop_labels, rotation=45)
+ax.set_yticklabels('')
+ax.legend()
+
+autolabel(rects)
+fig.tight_layout()
+fig.savefig('D:\\GitHub\\Projects\\Coursera_Capstone\\ap_top5_crop-rabi.png')
 plt.show()
 
 #plt.savefig('ap_top5_crop.png')
 
 
 # Top 5 districts for Coconut
-only_coconut = data1['Crop']=='Coconut '
-only_coconut.head()
-data1_coconut= data1[only_coconut]
-data1_coconut = data1_coconut.sort_values('Production', ascending=False)
-data1_coconut_top5 = data1_coconut.head(5)
-data1_coconut_top5['Production'] = np.log10(data1_coconut_top5['Production'])
+#only_coconut = data_wy['Crop']=='Coconut '
+#only_coconut.head()
+data_wy_coconut= data_wy[data_wy['Crop']=='Coconut ']
+data_wy_coconut.set_index('District_Name', inplace=True)
+data_wy_coconut = normalize(data_wy_coconut[['Production']])
+data_wy_coconut = data_wy_coconut.sort_values('Production', ascending=False)
+data_wy_coconut_top5 = data_wy_coconut.head(5)
+#data_wy_coconut_top5['Production'] = np.log10(data_wy_coconut_top5['Production'])
 
-crop_labels1 = data1_coconut_top5['District_Name'].tolist()
-crop_means1 = data1_coconut_top5['Production'].tolist()
+crop_labels1 = data_wy_coconut_top5.index
+crop_means1 = data_wy_coconut_top5['Production'].tolist()
 
 x1 = np.arange(len(crop_labels1))  # the label locations
-fig1, ax1= plt.subplots(figsize=(10,8))
-rects1 = ax1.bar(x1 - width+1.5/2, crop_means1, width, label='Production')
+fig, ax= plt.subplots(figsize=(10,8))
+rects1 = ax.bar(x - width+1.5/2, crop_means1, width, label='Production')
 
 # Add some text for labels, title and custom x-axis tick labels, etc.
-ax1.set_ylabel('In Tonnes (1000K per Units)')
-ax1.set_title('Top 5 Coconut Production Districts in Andhra Pradesh')
-ax1.set_xticks(x1)
-ax1.set_xticklabels(crop_labels1, rotation=45)
-ax1.legend()
+ax.set_ylabel('Production')
+ax.set_xlabel('Crop')
+ax.set_title('Top 5 Coconut Production Districts in Andhra Pradesh')
+ax.set_xticks(x)
+ax.set_xticklabels(crop_labels1, rotation=45)
+ax.set_yticklabels('')
+ax.legend()
 
 autolabel(rects1)
-fig1.tight_layout()
-fig1.savefig('D:\\GitHub\\Projects\\Coursera_Capstone\\ap_top5_coconut_production.png')
+fig.tight_layout()
+fig.savefig('D:\\GitHub\\Projects\\Coursera_Capstone\\ap_top5_coconut_production.png')
 plt.show()
 
 
 # Top 5 districts for Sugarcane
-only_sugarcane = data1['Crop']=='Sugarcane'
-only_sugarcane.head()
-data1_sugarcane= data1[only_sugarcane]
-data1_sugarcane = data1_sugarcane.sort_values('Production', ascending=False)
-data1_sugarcane_top5 = data1_sugarcane.head(5)
-data1_sugarcane_top5['Production'] = np.log10(data1_sugarcane_top5['Production'])
+#only_sugarcane = data_wy['Crop']=='Sugarcane'
+#only_sugarcane.head()
+data_wy_sugarcane= data_wy[data_wy['Crop']=='Sugarcane']
+data_wy_sugarcane.set_index('District_Name', inplace=True)
+data_wy_sugarcane = normalize(data_wy_sugarcane[['Production']])
+data_wy_sugarcane = data_wy_sugarcane.sort_values('Production', ascending=False)
+data_wy_sugarcane_top5 = data_wy_sugarcane.head(5)
+#data_wy_sugarcane_top5['Production'] = np.log10(data_wy_sugarcane_top5['Production'])
 
-crop_labels2 = data1_sugarcane_top5['District_Name'].tolist()
-crop_means2 = data1_sugarcane_top5['Production'].tolist()
+crop_labels2 = data_wy_sugarcane_top5.index
+crop_means2 = data_wy_sugarcane_top5['Production'].tolist()
 
 x2 = np.arange(len(crop_labels2))  # the label locations
-fig2, ax2= plt.subplots(figsize=(10,8))
-rects2 = ax2.bar(x2 - width+1.5/2, crop_means2, width, label='Production')
+fig, ax= plt.subplots(figsize=(10,8))
+rects2 = ax.bar(x2 - width+1.5/2, crop_means2, width, label='Production')
 
 # Add some text for labels, title and custom x-axis tick labels, etc.
-ax2.set_ylabel('In Tonnes (1000K per Units)')
-ax2.set_title('Top 5 Sugarcane Production Districts in Andhra Pradesh')
-ax2.set_xticks(x2)
-ax2.set_xticklabels(crop_labels2, rotation=45)
-ax2.legend()
+ax.set_ylabel('Production')
+ax.set_xlabel('Crop')
+ax.set_title('Top 5 Sugarcane Production Districts in Andhra Pradesh')
+ax.set_xticks(x2)
+ax.set_xticklabels(crop_labels2, rotation=45)
+ax.set_yticklabels('')
+ax.legend()
 
 autolabel(rects2)
-fig2.tight_layout()
-fig2.savefig('D:\\GitHub\\Projects\\Coursera_Capstone\\ap_top5_sgarcane_production.png')
+fig.tight_layout()
+fig.savefig('D:\\GitHub\\Projects\\Coursera_Capstone\\ap_top5_sgarcane_production.png')
 plt.show()
 
 
 
 
 # Top 5 districts for Rice
-only_rice = data1['Crop']=='Rice'
-only_rice.head()
-data1_rice= data1[only_rice]
-data1_rice = data1_rice.sort_values('Production', ascending=False)
-data1_rice_top5 = data1_rice.head()
-data1_rice_top5['Production'] = np.log10(data1_rice_top5['Production'])
+#only_rice = data_wy['Crop']=='Rice'
+#only_rice.head()
+data_wy_rice= data_wy[data_wy['Crop']=='Rice']
+data_wy_rice.set_index('District_Name', inplace=True)
+data_wy_rice = normalize(data_wy_rice[['Production']])
+data_wy_rice = data_wy_rice.sort_values('Production', ascending=False)
+data_wy_rice_top5 = data_wy_rice.head()
+#data_wy_rice_top5['Production'] = np.log10(data_wy_rice_top5['Production'])
 
-crop_labels3 = data1_rice_top5['District_Name'].tolist()
-crop_means3 = data1_rice_top5['Production'].tolist()
+crop_labels3 = data_wy_rice_top5.index
+crop_means3 = data_wy_rice_top5['Production'].tolist()
 
 x3 = np.arange(len(crop_labels3))  # the label locations
-fig3, ax3= plt.subplots(figsize=(10,8))
-rects3= ax3.bar(x3 - width+1.5/2, crop_means3, width, label='Production')
+fig, ax= plt.subplots(figsize=(10,8))
+rects3= ax.bar(x3 - width+1.5/2, crop_means3, width, label='Production')
 
 # Add some text for labels, title and custom x-axis tick labels, etc.
-ax3.set_ylabel('In Tonnes (1000K per Units)')
-ax3.set_title('Top 5 Rice Production Districts in Andhra Pradesh')
-ax3.set_xticks(x3)
-ax3.set_xticklabels(crop_labels3, rotation=45)
-ax3.legend()
+ax.set_ylabel('Production')
+ax.set_xlabel('Crop')            
+ax.set_title('Top 5 Rice Production Districts in Andhra Pradesh')
+ax.set_xticks(x3)
+ax.set_xticklabels(crop_labels3, rotation=45)
+ax.set_yticklabels('')
+ax.legend()
 
 autolabel(rects3)
-fig3.tight_layout()
-fig3.savefig('D:\\GitHub\\Projects\\Coursera_Capstone\\ap_top5_rice_production.png')
+fig.tight_layout()
+fig.savefig('D:\\GitHub\\Projects\\Coursera_Capstone\\ap_top5_rice_production.png')
 plt.show()
 
 
-# Top 5 districts for Maize
-only_maize = data1['Crop']=='Maize'
-only_maize.head()
-data1_maize= data1[only_maize]
-data1_maize = data1_maize.sort_values('Production', ascending=False)
-data1_maize_top5 = data1_maize.head()
-data1_maize_top5['Production'] = np.log10(data1_maize_top5['Production'])
+# Top 5 districts for Banana
+data_wy_banana= data_wy[data_wy['Crop']=='Banana']
+data_wy_banana.set_index('District_Name', inplace=True)
+data_wy_banana = normalize(data_wy_banana[['Production']])
+data_wy_banana = data_wy_banana.sort_values('Production', ascending=False)
+data_wy_banana_top5 = data_wy_banana.head()
+#data_wy_maize_top5['Production'] = np.log10(data_wy_maize_top5['Production'])
 
-crop_labels4 = data1_maize_top5['District_Name'].tolist()
-crop_means4 = data1_maize_top5['Production'].tolist()
+crop_labels4 = data_wy_banana_top5.index
+crop_means4 = data_wy_banana_top5['Production'].tolist()
 
 x4 = np.arange(len(crop_labels4))  # the label locations
-fig4, ax4 =plt.subplots(figsize=(10,8))
-rects4= ax4.bar(x4 - width+1.5/2, crop_means4, width, label='Production')
+fig, ax =plt.subplots(figsize=(10,8))
+rects4= ax.bar(x4 - width+1.5/2, crop_means4, width, label='Production')
 
 # Add some text for labels, title and custom x-axis tick labels, etc.
-ax4.set_ylabel('In Tonnes (1000K per Units)')
-ax4.set_title('Top 5 Maize Production Districts in Andhra Pradesh')
-ax4.set_xticks(x4)
-ax4.set_xticklabels(crop_labels4, rotation=45)
-ax4.legend()
+ax.set_ylabel('Production')
+ax.set_xlabel('Crop')
+ax.set_title('Top 5 Banana Production Districts in Andhra Pradesh')
+ax.set_xticks(x4)
+ax.set_xticklabels(crop_labels4, rotation=45)
+ax.set_yticklabels('')
+ax.legend()
 
 autolabel(rects4)
-fig4.tight_layout()
-fig4.savefig('D:\\GitHub\\Projects\\Coursera_Capstone\\ap_top5_maize_production.png')
+fig.tight_layout()
+fig.savefig('D:\\GitHub\\Projects\\Coursera_Capstone\\ap_top5_banana_production.png')
 plt.show()
 
 
 
-# Top 5 districts for Groundnut
-only_groundnut = data1['Crop']=='Groundnut'
-only_groundnut.head()
-data1_groundnut= data1[only_groundnut]
-data1_groundnut = data1_groundnut.sort_values('Production', ascending=False)
-data1_groundnut_top5 = data1_groundnut.head()
-data1_groundnut_top5['Production'] = np.log10(data1_groundnut_top5['Production'])
+# Top 5 districts for Tobacco
 
-crop_labels5 = data1_groundnut_top5['District_Name'].tolist()
-crop_means5 = data1_groundnut_top5['Production'].tolist()
+data_wy_tobacco= data_wy[data_wy['Crop']=='Tobacco']
+data_wy_tobacco.set_index('District_Name', inplace=True)
+data_wy_tobacco = normalize(data_wy_tobacco[['Production']])
+data_wy_tobacco = data_wy_tobacco.sort_values('Production', ascending=False)
+data_wy_tobacco_top5 = data_wy_tobacco.head()
+#data_wy_tobacco_top5['Production'] = np.log10(data_wy_tobacco_top5['Production'])
+
+crop_labels5 = data_wy_tobacco_top5.index
+crop_means5 = data_wy_tobacco_top5['Production'].tolist()
 
 x5 = np.arange(len(crop_labels4))  # the label locations
-fig5, ax5 =plt.subplots(figsize=(10,8))
-rects5= ax5.bar(x5 - width+1.5/2, crop_means5, width, label='Production')
+fig, ax =plt.subplots(figsize=(10,8))
+rects5= ax.bar(x5 - width+1.5/2, crop_means5, width, label='Production')
 
 # Add some text for labels, title and custom x-axis tick labels, etc.
-ax5.set_ylabel('In Tonnes (1000K per Units)')
-ax5.set_title('Top 5 Groundnut Production Districts in Andhra Pradesh')
-ax5.set_xticks(x4)
-ax5.set_xticklabels(crop_labels5, rotation=45)
-ax5.legend()
+ax.set_ylabel('Production')
+ax.set_xlabel('Crop')
+ax.set_title('Top 5 Tobacco Production Districts in Andhra Pradesh')
+ax.set_xticks(x4)
+ax.set_xticklabels(crop_labels5, rotation=45)
+ax.set_yticklabels('')
+ax.legend()
 
 autolabel(rects5)
-fig5.tight_layout()
-fig5.savefig('D:\\GitHub\\Projects\\Coursera_Capstone\\ap_top5_groundnut_production.png')
+fig.tight_layout()
+fig.savefig('D:\\GitHub\\Projects\\Coursera_Capstone\\ap_top5_tobacco_production.png')
 plt.show()
 
 
@@ -484,11 +594,11 @@ map_clusters.save(map_path, close_file=True)
 
 
 
-import selenium.webdriver
-driver = selenium.webdriver.PhantomJS('D:\\Software\\phantomjs-2.1.1-windows\\phantomjs-2.1.1-windows\\bin\\phantomjs.exe')
-driver.set_window_size(4000, 3000)
-driver.get(map_path)
-driver.save_screenshot('ap_map.png')
+#import selenium.webdriver
+#driver = selenium.webdriver.PhantomJS('D:\\Software\\phantomjs-2.1.1-windows\\phantomjs-2.1.1-windows\\bin\\phantomjs.exe')
+#driver.set_window_size(4000, 3000)
+#driver.get(map_path)
+#driver.save_screenshot('ap_map.png')
 
 # In[235]:
 
@@ -527,30 +637,6 @@ district_merged.loc[district_merged['Cluster Labels'] == 3, district_merged.colu
 
 # In[ ]:
 
-usmap = folium.Map(
-    location=[40,-95],
-    tiles='cartodbpositron',
-    zoom_start=5,
-    control_scale=True
-)
 
-folium.GeoJson(
-    states[['STATE_NAME', 'geometry']].to_json(),
-    name='States',
-    show=True,
-    style_function=lambda x: {
-        'fillColor': 'lightblue',
-        'color': 'black',
-        'weight': 1,
-        'fillOpacity':0.7
-    },
-    highlight_function=lambda x: {
-        'fillOpacity':1
-    },
-    tooltip=folium.features.GeoJsonTooltip(
-        fields=['STATE_NAME'],
-        aliases=['State name:'],
-    ),
-).add_to(usmap)
 
 
